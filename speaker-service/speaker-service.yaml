@@ -1,0 +1,35 @@
+     
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: hk-speaker-service
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hk-speaker-service
+    spec:
+      containers:
+      - name: hk-speaker-service
+        image: localhub.predic8.de/hk-speaker-service:$BUILD_NUMBER
+        ports:
+        - containerPort: 8081
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /info
+            port: 8081
+            scheme: HTTP
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /info
+            port: 8081
+            scheme: HTTP
+          initialDelaySeconds: 1
+          timeoutSeconds: 5
+        imagePullPolicy: Always
+      imagePullSecrets:
+        - name: p8-localhub-credentials

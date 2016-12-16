@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hk-api-gateway
+spec:
+  externalIPs:
+  - 192.168.137.150
+  - 192.168.137.151
+  selector:
+    app: hk-api-gateway
+  ports:
+    - name: http
+      port: 8765
+      protocol: TCP
+      targetPort: 8765

@@ -1,0 +1,34 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: hk-service-registry
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hk-service-registry
+    spec:
+      containers:
+      - name: hk-service-registry
+        image: localhub.predic8.de/hk-service-registry:$BUILD_NUMBER
+        ports:
+        - containerPort: 8761
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /info
+            port: 8761
+            scheme: HTTP
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /info
+            port: 8761
+            scheme: HTTP
+          initialDelaySeconds: 1
+          timeoutSeconds: 5
+        imagePullPolicy: Always
+      imagePullSecrets:
+        - name: p8-localhub-credentials

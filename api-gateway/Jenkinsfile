@@ -1,0 +1,27 @@
+#!groovy
+
+node {
+    stage('build') {
+        docker.image('localhub.predic8.de/p8/java-maven-docker-local:2').inside('-v /var/run/docker.sock:/var/run/docker.sock --group-add 233 -e HOME=/var/jenkins_home') {
+            checkout scm
+            sh 'mvn clean package'
+
+            docker.withRegistry('https://localhub.predic8.de', 'p8-hub-user') {
+                docker.build('hk-api-gateway').push(env.BUILD_NUMBER)
+            }
+
+            stash name:'deployment', includes: 'api-gateway.yaml'
+        }    
+    }
+    stage('Test') {
+        // TODO
+    }
+    stage('Deploy') {
+        docker.image('localhub.predic8.de/p8/kubectl:6').inside('-e HOME=/var/jenkins_home') {
+            unstash name: 'deployment'
+
+            sh 'envsubst < api-gateway.yaml > api-gateway-replaced.yaml'
+            sh 'kubectl -s https://wallis.predic8.de:8443 apply -f api-gateway-replaced.yaml'
+        }
+    }
+}

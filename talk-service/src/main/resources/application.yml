@@ -1,0 +1,6 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${hk.service.registry.service.host:localhost}:${hk.service.registry.service.port:8761}/eureka/
+  instance:
+    preferIpAddress: true
